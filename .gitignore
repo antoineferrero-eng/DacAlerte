@@ -1,0 +1,25 @@
+# Fichiers et dossiers d'IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*~
+.DS_Store
+
+# Fichiers d'environnement (Mots de passe, clés d'API)
+.env
+.env.local
+
+# Docker (Ignorer les overrides locaux si existants)
+docker-compose.override.yml
+
+# Au cas où des builds sont faits à la racine
+node_modules/
+dist/
+.angular/
+target/
+*.class
+
+# Journaux (Logs)
+*.log
+logs/
