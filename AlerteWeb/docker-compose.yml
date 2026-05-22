@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  alerteweb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: alerteweb:latest
+    ports:
+      - "8001:80"
+    restart: always

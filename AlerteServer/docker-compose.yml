@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  alerteserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: alerteserver:latest
+    ports:
+      - "9000:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/alertedb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - GOOGLE_CLIENT_ID=326672551116-bmjtj504t0as6rn8ok22sli8u3k6v97c.apps.googleusercontent.com
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - TZ=Europe/Paris
+    depends_on:
+      postgres:
+        condition: service_started
+    networks:
+      - alerte-network
+    restart: always
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=alertedb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_v2:/var/lib/postgresql/data
+    networks:
+      - alerte-network
+    restart: always
+
+networks:
+  alerte-network:
+    driver: bridge
+
+volumes:
+  postgres_data_v2:

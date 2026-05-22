@@ -1,0 +1,26 @@
+<div class="list-container">
+  <h2 class="list-title">Listes des alertes</h2>
+  
+  <div class="list-scroll-area">
+    <div class="empty-list" *ngIf="filteredBulletins().length === 0">
+      Liste vide
+    </div>
+
+    <div 
+      class="alert-item" 
+      *ngFor="let bulletin of filteredBulletins()"
+      [id]="'dept-' + bulletin.departement.num"
+      [ngClass]="alertService.getAlertClass(alertService.getDisplayLevel(bulletin.alertes, selectionService.selectedType()))"
+      [class.selected-item]="isSelected(bulletin)"
+      (click)="selectDepartement(bulletin)"
+    >
+      <div class="item-info">
+        <span class="dept-name">{{ bulletin.departement.num }} - {{ getDeptName(bulletin.departement.num) }}</span>
+        <span class="alert-summary">{{ alertService.getAlertSummary(bulletin.alertes, selectionService.selectedType()) }}</span>
+      </div>
+      <div class="item-level">
+        {{ alertService.getDisplayLevel(bulletin.alertes, selectionService.selectedType()) }}
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,145 @@
+/* card.css */
+:host {
+  display: block;
+  font-family: Arial, sans-serif;
+}
+
+.card-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #2c2c2c;
+  margin: 0 0 10px 10px;
+}
+
+.card-content {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.section-today,
+.section-tomorrow {
+  padding: 22px 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-tomorrow {
+  border-top: 0.2px solid rgba(255, 255, 255, 0.769);
+}
+
+.bg-red {
+  background-color: var(--color-alert-4) !important;
+}
+
+.bg-orange {
+  background-color: var(--color-alert-3) !important;
+}
+
+.bg-yellow {
+  background-color: var(--color-alert-2) !important;
+}
+
+.bg-green {
+  background-color: var(--color-alert-1) !important;
+}
+
+.bg-default {
+  background-color: var(--color-alert-default) !important;
+}
+
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.title-temp {
+  display: flex;
+  align-items: center;
+}
+
+.day-label {
+  font-size: 24px;
+  font-weight: 800;
+  color: #2c2c2c;
+}
+
+.temp-val,
+.wind-val {
+  display: inline-flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff !important;
+}
+
+.bg-yellow .temp-val,
+.bg-yellow .wind-val,
+.bg-default .temp-val,
+.bg-default .wind-val {
+  color: #2c2c2c !important;
+}
+
+.alert-number {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+  color: #2c2c2c;
+  margin: 0;
+}
+
+.details-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.alert-text-wrapper {
+  flex: 1;
+  padding-right: 10px;
+}
+
+.details-bottom p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c2c2c;
+}
+
+.btn-prevenir {
+  background-color: #ede2e3;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c2c2c;
+  cursor: pointer;
+}
+
+
+
+.icon-svg {
+  width: 54px;
+  height: 54px;
+}
+
+.icon-svg path {
+  stroke: currentColor !important;
+}
+
+.icon-svg circle {
+  fill: currentColor !important;
+}
