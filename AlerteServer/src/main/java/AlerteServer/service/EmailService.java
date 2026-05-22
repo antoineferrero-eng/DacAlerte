@@ -171,7 +171,7 @@ public class EmailService {
             sb.append(
                     "<div style=\"padding: 15px; background-color: #eafaf1; border-left: 5px solid #27ae60; color: #27ae60; border-radius: 6px; margin: 20px 0;\">");
             sb.append(
-                    "<p style=\"margin: 0; font-weight: bold;\">Aucune vigilance météorologique active n'est signalée sur vos chantiers planifiés pour aujourd'hui.</p>");
+                    "<p style=\"margin: 0; font-weight: bold;\">Aucune vigilance météorologique active n'est signalée sur vos interventions pour aujourd'hui.</p>");
             sb.append("</div>");
         }
 
