@@ -8,8 +8,8 @@ import { ApiService } from '../../core/services/api.service';
   imports: [CommonModule],
   template: `
     <div style="padding: 50px; text-align: center;">
-      <h1>Générateur de Faux Ordres de Travail</h1>
-      <p>Cette page toute nulle sert à créer des OT bidons pour aujourd'hui, en gardant des liens Site-Ressource valides.</p>
+      <h1>Génération de Faux Ordres de Travail</h1>
+      <p>Cette page sert à créer des OT bidons pour aujourd'hui.</p>
       
       <button 
         (click)="generateFakeOts()" 

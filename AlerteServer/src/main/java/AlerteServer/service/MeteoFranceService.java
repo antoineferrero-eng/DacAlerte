@@ -103,6 +103,10 @@ public class MeteoFranceService {
                 if (deptNum.equals("FRA"))
                     continue;
 
+                if (deptNum.length() == 4 && deptNum.endsWith("10")) {
+                    deptNum = deptNum.substring(0, 2);
+                }
+
                 List<String> targetNums = new ArrayList<>();
                 if (deptNum.equals("2A") || deptNum.equals("2B")) {
                     targetNums.add("20");
