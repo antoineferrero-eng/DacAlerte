@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.PostMapping;
+
 @RestController
 @RequestMapping("/ordre-de-travails")
 public class OtController {
@@ -35,5 +37,10 @@ public class OtController {
         String ressourceId = (ot.getRessource() != null) ? ot.getRessource().getDkCode() : null;
         String emplacementId = (ot.getEmplacement() != null) ? ot.getEmplacement().getDkCode() : null;
         return new OtDTO(ot.getNumeroOt(), ot.getCrDebutIntervention(), ressourceId, emplacementId);
+    }
+
+    @PostMapping("/fake")
+    public void createFakeOts() {
+        otService.createFakeOtsForToday();
     }
 }

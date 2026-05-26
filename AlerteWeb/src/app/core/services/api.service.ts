@@ -134,6 +134,11 @@ export class ApiService {
     return this.http.get<any[]>(`${this.API_URL}/ordre-de-travails`);
   }
 
+  /** Générer de faux ordres de travail pour aujourd'hui */
+  createFakeOts(): Observable<any> {
+    return this.http.post(`${this.API_URL}/ordre-de-travails/fake`, {});
+  }
+
   /** Récupérer tous les sites */
   getSites(): Observable<any[]> {
     return this.http.get<any[]>(`${this.API_URL}/sites`);
