@@ -16,5 +16,9 @@ export const routes: Routes = [
     loadComponent: () => import('./features/manage/manage').then(m => m.ManageComponent),
     canActivate: [manageGuard]
   },
+  {
+    path: 'fake-ot',
+    loadComponent: () => import('./features/fake-ot/fake-ot.component').then(m => m.FakeOtComponent)
+  },
   { path: '', redirectTo: 'home/all', pathMatch: 'full' }
 ];
