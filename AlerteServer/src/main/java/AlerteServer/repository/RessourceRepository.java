@@ -19,6 +19,7 @@ public interface RessourceRepository extends JpaRepository<Ressource, String> {
             "JOIN Bulletin b ON b.departement = s.departement " +
             "JOIN b.alertes a " +
             "WHERE b.date = :date AND s.departement.num = :deptNum " +
+            "AND CAST(odt.crDebutIntervention AS date) = :date " +
             "ORDER BY a.level DESC")
     List<ContactAlerteDTO> findContactsByAlerte(@Param("date") LocalDate date, @Param("deptNum") String deptNum);
 
@@ -29,6 +30,7 @@ public interface RessourceRepository extends JpaRepository<Ressource, String> {
             "JOIN Bulletin b ON b.departement = s.departement " +
             "JOIN b.alertes a " +
             "WHERE r.dkCode = :dkCode AND b.date = :date " +
+            "AND CAST(odt.crDebutIntervention AS date) = :date " +
             "ORDER BY a.level DESC")
     List<ContactAlerteDTO> findContactsByResourceAndDate(@Param("dkCode") String dkCode, @Param("date") LocalDate date);
 
