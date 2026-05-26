@@ -24,7 +24,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/alertedb
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_PASSWORD=AlerteP4ssw0rd
       - GOOGLE_CLIENT_ID=326672551116-bmjtj504t0as6rn8ok22sli8u3k6v97c.apps.googleusercontent.com
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
@@ -41,9 +41,7 @@ services:
     environment:
       - POSTGRES_DB=alertedb
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-    ports:
-      - "5432:5432"
+      - POSTGRES_PASSWORD=AlerteP4ssw0rd
     volumes:
       - postgres_data_v2:/var/lib/postgresql/data
     networks:
