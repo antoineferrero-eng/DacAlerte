@@ -1,6 +1,6 @@
 package AlerteServer.service;
 
-import AlerteServer.config.AppConfig;
+import AlerteServer.service.ConfigService;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +25,12 @@ public class SchedulingService {
     private static final Logger log = LoggerFactory.getLogger(SchedulingService.class);
 
     private final TaskScheduler taskScheduler;
-    private final AppConfig appConfig;
+    private final ConfigService configService;
     private final ApiCallService apiCallService;
 
-    public SchedulingService(TaskScheduler taskScheduler, AppConfig appConfig, ApiCallService apiCallService) {
+    public SchedulingService(TaskScheduler taskScheduler, ConfigService configService, ApiCallService apiCallService) {
         this.taskScheduler = taskScheduler;
-        this.appConfig = appConfig;
+        this.configService = configService;
         this.apiCallService = apiCallService;
     }
 
@@ -57,7 +57,7 @@ public class SchedulingService {
             updateFuture.cancel(false);
         }
         scheduleDataUpdate();
-        log.info("Mise à jour des données re-planifiée avec le cron : {}", appConfig.getUpdateCron());
+        log.info("Mise à jour des données re-planifiée avec le cron : {}", configService.getUpdateCron());
     }
 
     /**
@@ -69,7 +69,7 @@ public class SchedulingService {
             mailFuture.cancel(false);
         }
         scheduleMail();
-        log.info("Envoi des mails re-planifié avec le cron : {}", appConfig.getMailCron());
+        log.info("Envoi des mails re-planifié avec le cron : {}", configService.getMailCron());
     }
 
     /**
@@ -78,7 +78,7 @@ public class SchedulingService {
      * défaut (tous les jours à 6h00).
      */
     private void scheduleDataUpdate() {
-        String cron = appConfig.getUpdateCron();
+        String cron = configService.getUpdateCron();
         if (!CronExpression.isValidExpression(cron)) {
             log.error(
                     "Expression cron invalide pour la mise à jour des données : {}. Utilisation d'une valeur par défaut.",
@@ -99,7 +99,7 @@ public class SchedulingService {
      * défaut (tous les jours à 8h00).
      */
     private void scheduleMail() {
-        String cron = appConfig.getMailCron();
+        String cron = configService.getMailCron();
         if (!CronExpression.isValidExpression(cron)) {
             log.error("Expression cron invalide pour l'envoi des mails : {}. Utilisation d'une valeur par défaut.",
                     cron);

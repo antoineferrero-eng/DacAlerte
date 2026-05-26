@@ -1,6 +1,6 @@
 package AlerteServer.controller;
 
-import AlerteServer.config.AppConfig;
+import AlerteServer.service.ConfigService;
 import AlerteServer.dto.*;
 import AlerteServer.service.SchedulingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,36 +16,36 @@ import java.util.Map;
 public class ConfigController {
 
     @Autowired
-    private AppConfig appConfig;
+    private ConfigService configService;
 
     @Autowired
     private SchedulingService schedulingService;
 
     @GetMapping("/alert-levels")
     public List<String> getActiveLevels() {
-        return appConfig.getActiveLevels();
+        return configService.getActiveLevels();
     }
 
     @PostMapping("/alert-levels")
     public LevelsResponseDTO setActiveLevels(@RequestBody List<String> levels) {
-        appConfig.setActiveLevels(levels);
-        return new LevelsResponseDTO("ok", appConfig.getActiveLevels());
+        configService.setActiveLevels(levels);
+        return new LevelsResponseDTO("ok", configService.getActiveLevels());
     }
 
     @GetMapping("/alert-types")
     public List<String> getActiveTypes() {
-        return appConfig.getActiveTypes();
+        return configService.getActiveTypes();
     }
 
     @PostMapping("/alert-types")
     public TypesResponseDTO setActiveTypes(@RequestBody List<String> types) {
-        appConfig.setActiveTypes(types);
-        return new TypesResponseDTO("ok", appConfig.getActiveTypes());
+        configService.setActiveTypes(types);
+        return new TypesResponseDTO("ok", configService.getActiveTypes());
     }
 
     @GetMapping("/mail-time")
     public MailCronResponseDTO getMailCron() {
-        return new MailCronResponseDTO("ok", appConfig.getMailCron());
+        return new MailCronResponseDTO("ok", configService.getMailCron());
     }
 
     @PostMapping("/mail-time")
@@ -53,16 +53,16 @@ public class ConfigController {
         String cron = body.get("cron");
         if (cron == null || !CronExpression.isValidExpression(cron)) {
             return ResponseEntity.badRequest()
-                    .body(new MailCronResponseDTO("error: invalid cron", appConfig.getMailCron()));
+                    .body(new MailCronResponseDTO("error: invalid cron", configService.getMailCron()));
         }
-        appConfig.setMailCron(cron);
+        configService.setMailCron(cron);
         schedulingService.rescheduleMail();
-        return ResponseEntity.ok(new MailCronResponseDTO("ok", appConfig.getMailCron()));
+        return ResponseEntity.ok(new MailCronResponseDTO("ok", configService.getMailCron()));
     }
 
     @GetMapping("/update-time")
     public UpdateCronResponseDTO getUpdateCron() {
-        return new UpdateCronResponseDTO("ok", appConfig.getUpdateCron());
+        return new UpdateCronResponseDTO("ok", configService.getUpdateCron());
     }
 
     @PostMapping("/update-time")
@@ -70,19 +70,19 @@ public class ConfigController {
         String cron = body.get("cron");
         if (cron == null || !CronExpression.isValidExpression(cron)) {
             return ResponseEntity.badRequest()
-                    .body(new UpdateCronResponseDTO("error: invalid cron", appConfig.getUpdateCron()));
+                    .body(new UpdateCronResponseDTO("error: invalid cron", configService.getUpdateCron()));
         }
-        appConfig.setUpdateCron(cron);
+        configService.setUpdateCron(cron);
         schedulingService.rescheduleDataUpdate();
-        return ResponseEntity.ok(new UpdateCronResponseDTO("ok", appConfig.getUpdateCron()));
+        return ResponseEntity.ok(new UpdateCronResponseDTO("ok", configService.getUpdateCron()));
     }
 
     @GetMapping
     public FullConfigDTO getFullConfig() {
         return new FullConfigDTO(
-                appConfig.getActiveLevels(),
-                appConfig.getActiveTypes(),
-                appConfig.getMailCron(),
-                appConfig.getUpdateCron());
+                configService.getActiveLevels(),
+                configService.getActiveTypes(),
+                configService.getMailCron(),
+                configService.getUpdateCron());
     }
 }
