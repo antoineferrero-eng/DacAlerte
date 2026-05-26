@@ -33,7 +33,8 @@ export class List implements OnInit {
   bulletins = signal<Bulletin[]>([]);
 
   filteredBulletins = computed(() => {
-    return this.bulletins();
+    const selectedType = this.selectionService.selectedType();
+    return this.bulletins().filter(b => this.alertService.getDisplayLevel(b.alertes, selectedType) > 0);
   });
 
   constructor() {
