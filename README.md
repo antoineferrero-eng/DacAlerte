@@ -103,4 +103,4 @@ docker-compose up -d --build
 **Antoine FERRERO**
 *Étudiant en BUT Informatique (2ème année)*
 
-Un grand remerciement à l'**Équipe Pi** de Dalkia pour leur encadrement tout au long du développement (Scrum Master, Product Owner, Développeurs et Testeur).
+Un grand remerciement à l'**Équipe Pi** de Dalkia pour leur encadrement tout au long du développement.
