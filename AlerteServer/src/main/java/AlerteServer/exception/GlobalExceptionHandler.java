@@ -13,7 +13,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Méthode utilitaire pour uniformiser le format des erreurs JSON
     private Map<String, Object> buildErrorBody(String message, HttpStatus status) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
@@ -23,7 +22,6 @@ public class GlobalExceptionHandler {
         return body;
     }
 
-    // Gestion des erreurs de type dans l'URL
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Object> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         Class<?> requiredType = ex.getRequiredType();
@@ -33,7 +31,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(buildErrorBody(message, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
     }
 
-    // Gestion des erreurs de base de données
     @ExceptionHandler({
             org.springframework.dao.DataIntegrityViolationException.class,
             org.springframework.dao.IncorrectResultSizeDataAccessException.class
@@ -48,11 +45,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneralError(Exception ex) {
-        // En production, on logue l'erreur complète sur le serveur, mais on cache le détail au client
         return new ResponseEntity<>(
                 buildErrorBody("Une erreur inattendue est survenue.", HttpStatus.INTERNAL_SERVER_ERROR),
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(IdNotFoundException.class)

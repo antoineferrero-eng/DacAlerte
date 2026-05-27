@@ -1,9 +1,7 @@
 <app-navbar></app-navbar>
 
 <div class="admin-layout">
-  <!-- Left Sidebar Filters -->
   <aside class="admin-sidebar">
-    <!-- Mobile Filter Toggle -->
     <input type="checkbox" id="mobile-filter-toggle-admin" class="mobile-filter-checkbox">
     <label for="mobile-filter-toggle-admin" class="mobile-filter-label">
       <div class="label-content">
@@ -59,7 +57,6 @@
     </div>
   </aside>
 
-  <!-- Main Content Table -->
   <main class="admin-content">
     <div *ngIf="loading" class="loading-overlay">
       <mat-spinner diameter="40"></mat-spinner>

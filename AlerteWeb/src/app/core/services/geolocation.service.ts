@@ -13,7 +13,6 @@ export class GeolocationService {
   private apiService = inject(ApiService);
   private selectionService = inject(SelectionService);
 
-  /** Localiser l'utilisateur et sélectionner automatiquement son département */
   async locateUserAndSelectDepartment(): Promise<void> {
     try {
       if (!navigator.geolocation) {

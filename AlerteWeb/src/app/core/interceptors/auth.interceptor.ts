@@ -5,7 +5,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const idToken = localStorage.getItem('id_token');
   let url = req.url;
 
-  // Prepend environment.apiUrl if url is relative and not an asset
   if (url.startsWith('/') && !url.endsWith('.json') && !url.startsWith('/assets/') && environment.apiUrl) {
     url = `${environment.apiUrl}${url}`;
   }

@@ -14,7 +14,6 @@ import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
 
-/** Convertit une expression cron "s m h * * *" → "HH:MM" */
 function cronToTime(cron: string): string {
   const parts = cron.trim().split(/\s+/);
   const minuteIdx = parts.length === 6 ? 1 : 0;
@@ -22,14 +21,12 @@ function cronToTime(cron: string): string {
   let h = parts[hourIdx] ?? '0';
   let m = parts[minuteIdx] ?? '0';
 
-  // Sécurité si le cron est corrompu (ex: "NaN")
   if (h === 'NaN' || isNaN(parseInt(h, 10))) h = '00';
   if (m === 'NaN' || isNaN(parseInt(m, 10))) m = '00';
 
   return `${h.padStart(2, '0')}:${m.padStart(2, '0')}`;
 }
 
-/** Convertit "HH:MM" → expression cron Spring "0 MM HH * * *" */
 function timeToCron(time: string): string {
   if (!time || !time.includes(':')) return '0 0 0 * * *';
   const [h, m] = time.split(':');
@@ -87,13 +84,9 @@ export class SettingsDialogComponent implements OnInit {
   readonly alertLevels = ALERT_LEVELS;
   readonly alertTypes = ALERT_TYPES;
 
-  /** Niveaux sélectionnés (ex: ['orange', 'rouge']) */
   selectedLevels: string[] = [];
-  /** Types sélectionnés (ex: ['1','2','3','4']) */
   selectedTypes: string[] = [];
-  /** Heure de mise à jour au format HH:MM */
   updateTime = '00:00';
-  /** Heure d'envoi mail au format HH:MM */
   mailTime = '04:00';
 
   loading = true;

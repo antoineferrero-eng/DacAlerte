@@ -32,12 +32,12 @@ export class Card {
   get isHomeAll(): boolean {
     return this.router.url === '/home/all';
   }
-  
+
   readonly MAP_COLORS = MAP_COLORS;
   readonly DEFAULT_MAP_COLOR = DEFAULT_MAP_COLOR;
-  
+
   bulletin = this.selectionService.selectedBulletin;
-  
+
   meteoToday = signal<any | null>(null);
   meteoTomorrow = signal<any | null>(null);
   bulletinTomorrow = signal<Bulletin | null>(null);
@@ -68,14 +68,14 @@ export class Card {
     return this.apiService.getBulletinsByDate(date);
   }
 
-  private decimalPipe = new DecimalPipe('en-US'); // Provide a default locale
+  private decimalPipe = new DecimalPipe('en-US');
 
   departementName = computed(() => {
     const b = this.bulletin();
     return b ? (DEPARTEMENTS_MAP[b.departement.num] || `Département ${b.departement.num}`) : '';
   });
 
-  getDisplayInfo(meteo: DailyMeteo | null, type: number | null): {value: string, unit: string, icon: string}[] {
+  getDisplayInfo(meteo: DailyMeteo | null, type: number | null): { value: string, unit: string, icon: string }[] {
     if (!meteo) return [];
     if (type === null || type === undefined) {
       return [
@@ -83,7 +83,7 @@ export class Card {
         { value: meteo.windSpeedMax?.toString(), unit: 'km/h', icon: 'wind' }
       ].filter(i => i.value);
     }
-    
+
     switch (type) {
       case 1: // Vent
         return [

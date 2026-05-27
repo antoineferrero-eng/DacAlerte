@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * Contrôleur REST exposant les endpoints de gestion et de consultation des sites d'intervention.
+ * Contrôleur REST exposant les endpoints de gestion et de consultation des
+ * sites d'intervention.
  * Accessible publiquement sur la route `/sites`.
  */
 @RestController
@@ -22,12 +23,6 @@ public class SiteController {
     @Autowired
     private SiteService siteService;
 
-    /**
-     * Récupère la liste de l'ensemble des sites enregistrés dans le système.
-     * Appelé par le client pour afficher les emplacements disponibles.
-     *
-     * @return une liste de {@link SiteDTO} représentant tous les sites
-     */
     @GetMapping
     public List<SiteDTO> getAll() {
         return siteService.getAll()
@@ -36,12 +31,6 @@ public class SiteController {
                 .toList();
     }
 
-    /**
-     * Récupère les informations détaillées d'un site à partir de son identifiant unique.
-     *
-     * @param id le code unique du site (souvent le code d'emplacement)
-     * @return le DTO correspondant au site trouvé
-     */
     @GetMapping("/{id}")
     public SiteDTO getById(@PathVariable String id) {
         return mapToDTO(siteService.getById(id));

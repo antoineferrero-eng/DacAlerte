@@ -1,9 +1,7 @@
 <app-navbar></app-navbar>
 
 <div class="admin-layout">
-  <!-- Left Sidebar Filters -->
   <aside class="admin-sidebar">
-    <!-- Mobile Filter Toggle -->
     <input type="checkbox" id="mobile-filter-toggle-manage" class="mobile-filter-checkbox">
     <label for="mobile-filter-toggle-manage" class="mobile-filter-label">
       <div class="label-content">
@@ -47,7 +45,6 @@
     </div>
   </aside>
 
-  <!-- Main Content Resource List -->
   <main class="admin-content">
     <div *ngIf="loading" class="loading-overlay">
       <mat-spinner diameter="40"></mat-spinner>
@@ -86,7 +83,6 @@
         </div>
       </div>
 
-      <!-- Pagination Controls -->
       <div class="pagination-controls" *ngIf="filteredRessources.length > 0">
         <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
           <mat-icon>chevron_left</mat-icon>
@@ -105,7 +101,6 @@
   </main>
 </div>
 
-<!-- Notification Toast -->
 <div class="toast-container" *ngIf="toast" [class.toast-success]="toast.type === 'success'"
   [class.toast-error]="toast.type === 'error'">
   <div class="toast-icon">

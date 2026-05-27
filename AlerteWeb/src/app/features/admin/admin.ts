@@ -6,7 +6,6 @@ import { ApiService } from '../../core/services/api.service';
 import { UserDTO } from '../../core/models/user.dto';
 import { REGIONS } from '../../core/constants/regions';
 
-// Angular Material modules
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -39,7 +38,6 @@ export class AdminComponent implements OnInit {
   currentPage = 1;
   pageSize = 15;
 
-  // Filters
   filterNom = '';
   filterPrenom = '';
   filterMail = '';
@@ -84,8 +82,8 @@ export class AdminComponent implements OnInit {
       const matchNom = !this.filterNom || (u.lastName && u.lastName.toLowerCase().includes(this.filterNom.toLowerCase()));
       const matchPrenom = !this.filterPrenom || (u.firstName && u.firstName.toLowerCase().includes(this.filterPrenom.toLowerCase()));
       const matchMail = !this.filterMail || (u.mail && u.mail.toLowerCase().includes(this.filterMail.toLowerCase()));
-      const matchDroit = this.filterDroit === 'all' || 
-                         (this.filterDroit === 2 ? u.level >= 2 : u.level === this.filterDroit);
+      const matchDroit = this.filterDroit === 'all' ||
+        (this.filterDroit === 2 ? u.level >= 2 : u.level === this.filterDroit);
       const matchRegion = !this.filterRegion || (u.region && u.region.toLowerCase().includes(this.filterRegion.toLowerCase()));
       return matchNom && matchPrenom && matchMail && matchDroit && matchRegion;
     });
@@ -119,7 +117,7 @@ export class AdminComponent implements OnInit {
 
   updateUser(user: UserDTO) {
     if (user.level !== 1) {
-      user.region = undefined; // Clear region if not manager
+      user.region = undefined;
     }
 
     this.api.updateUser(user.id, user.level, user.region || null).subscribe({

@@ -13,7 +13,6 @@ export class AuthService {
   private ngZone = inject(NgZone);
 
   constructor(public socialAuthService: SocialAuthService) {
-    // 1. Initial load from localStorage
     const savedToken = localStorage.getItem('id_token');
     console.log('[AuthService] Constructor - Checking localStorage token:', !!savedToken);
     if (savedToken) {
@@ -31,7 +30,6 @@ export class AuthService {
       });
     }
 
-    // 2. React to Social Login state changes
     this.socialAuthService.authState.subscribe((user) => {
       this.ngZone.run(() => {
         this._user.set(user);
