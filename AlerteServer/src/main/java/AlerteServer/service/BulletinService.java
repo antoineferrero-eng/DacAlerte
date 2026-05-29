@@ -2,7 +2,9 @@ package AlerteServer.service;
 
 import AlerteServer.entity.Bulletin;
 import AlerteServer.exception.IdNotFoundException;
+import AlerteServer.repository.AlerteRepository;
 import AlerteServer.repository.BulletinRepository;
+import AlerteServer.repository.Daily_meteoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,12 @@ public class BulletinService {
 
     @Autowired
     private BulletinRepository bulletinRepository;
+
+    @Autowired
+    private AlerteRepository alerteRepository;
+
+    @Autowired
+    private Daily_meteoRepository dailyMeteoRepository;
 
     public List<Bulletin> getAll() {
         return bulletinRepository.findAllWithDetails();
@@ -44,6 +52,8 @@ public class BulletinService {
         LocalDate limitDate = LocalDate.now().minusMonths(1);
         log.info("Purge des bulletins antérieurs au : {}", limitDate);
         try {
+            alerteRepository.deleteOldAlertes(limitDate);
+            dailyMeteoRepository.deleteOldDailyMeteos(limitDate);
             bulletinRepository.deleteOldBulletins(limitDate);
             log.info("Purge effectuée avec succès.");
         } catch (Exception e) {
