@@ -176,7 +176,9 @@ public class EmailService {
         }
 
         sb.append(
-                "<p style=\"font-size: 16px; color: #555555; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ecf0f1;\">Merci de prendre les précautions nécessaires avant votre déplacement.</p>");
+                "<p style=\"font-size: 16px; color: #555555; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ecf0f1;\">Pour plus d'informations, rendez-vous sur : <a href=\"https://dacalerte.duckdns.org/\" style=\"color: #3498db; text-decoration: none; font-weight: bold;\">dacalerte.duckdns.org</a>.</p>");
+        sb.append(
+                "<p style=\"font-size: 16px; color: #555555;\">Merci de prendre les précautions nécessaires avant votre déplacement.</p>");
         sb.append("<p style=\"font-size: 16px; color: #333333; font-weight: bold;\">Merci de votre compréhension.</p>");
         sb.append("</div></div></body></html>");
 
@@ -237,7 +239,9 @@ public class EmailService {
         }
 
         sb.append(
-                "<p style=\"font-size: 16px; color: #555555; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ecf0f1;\">Merci de prendre les précautions nécessaires avant votre déplacement.</p>");
+                "<p style=\"font-size: 16px; color: #555555; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ecf0f1;\">Pour plus d'informations, rendez-vous sur : <a href=\"https://dacalerte.duckdns.org/\" style=\"color: #3498db; text-decoration: none; font-weight: bold;\">dacalerte.duckdns.org</a>.</p>");
+        sb.append(
+                "<p style=\"font-size: 16px; color: #555555;\">Merci de prendre les précautions nécessaires avant votre déplacement.</p>");
         sb.append("<p style=\"font-size: 16px; color: #333333; font-weight: bold;\">Merci de votre compréhension.</p>");
         sb.append("</div></div></body></html>");
 
