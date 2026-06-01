@@ -6,6 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import AlerteServer.service.MeteoFranceService.VigilanceResult;
+import AlerteServer.service.OpenMeteoService.ForecastResult;
+import AlerteServer.entity.Departement;
+import java.util.List;
+
 /**
  * Service d'orchestration pour les tâches asynchrones complexes.
  * Coordonne les appels d'import de données externes (Météo-France, Open-Meteo) et l'envoi d'e-mails d'alerte.
@@ -19,15 +24,21 @@ public class ApiCallService {
     private final BulletinService bulletinService;
     private final MeteoFranceService meteoFranceService;
     private final OpenMeteoService openMeteoService;
+    private final Daily_meteoService dailyMeteoService;
+    private final DepartementService departementService;
 
     public ApiCallService(EmailService emailService,
             BulletinService bulletinService,
             MeteoFranceService meteoFranceService,
-            OpenMeteoService openMeteoService) {
+            OpenMeteoService openMeteoService,
+            Daily_meteoService dailyMeteoService,
+            DepartementService departementService) {
         this.emailService = emailService;
         this.bulletinService = bulletinService;
         this.meteoFranceService = meteoFranceService;
         this.openMeteoService = openMeteoService;
+        this.dailyMeteoService = dailyMeteoService;
+        this.departementService = departementService;
     }
 
     /**
@@ -49,10 +60,13 @@ public class ApiCallService {
             JsonNode vigilanceData = meteoFranceService.fetchVigilanceData();
             if (vigilanceData != null) {
                 // Etape 3 : Traitement et persistance des vigilances et bulletins
-                meteoFranceService.processAndSaveVigilanceData(vigilanceData);
+                List<VigilanceResult> vigilances = meteoFranceService.parseVigilanceData(vigilanceData);
+                bulletinService.saveVigilances(vigilances);
                 
                 // Etape 4 : Récupération des prévisions météo détaillées quotidiennes
-                openMeteoService.fetchAndSaveAllDailyMeteo();
+                List<Departement> depts = departementService.getAll();
+                List<ForecastResult> forecasts = openMeteoService.fetchForecasts(depts);
+                dailyMeteoService.saveForecasts(forecasts);
                 
                 log.info("Importation complète terminée avec succès");
             }

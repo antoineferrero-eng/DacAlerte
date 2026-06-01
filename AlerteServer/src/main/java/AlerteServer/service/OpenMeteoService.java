@@ -2,14 +2,10 @@ package AlerteServer.service;
 
 import AlerteServer.entity.Daily_meteo;
 import AlerteServer.entity.Departement;
-import AlerteServer.repository.BulletinRepository;
-import AlerteServer.repository.Daily_meteoRepository;
-import AlerteServer.repository.DepartementRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
@@ -17,6 +13,7 @@ import reactor.util.retry.Retry;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,29 +22,22 @@ public class OpenMeteoService {
 
     private static final Logger log = LoggerFactory.getLogger(OpenMeteoService.class);
 
-    private final Daily_meteoRepository dailyMeteoRepository;
-    private final DepartementRepository departementRepository;
-    private final BulletinRepository bulletinRepository;
     private final WebClient webClient;
 
-    public OpenMeteoService(Daily_meteoRepository dailyMeteoRepository,
-                            DepartementRepository departementRepository,
-                            BulletinRepository bulletinRepository,
-                            WebClient.Builder webClientBuilder) {
-        this.dailyMeteoRepository = dailyMeteoRepository;
-        this.departementRepository = departementRepository;
-        this.bulletinRepository = bulletinRepository;
+    public OpenMeteoService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
     }
 
-    @Transactional
-    public void fetchAndSaveAllDailyMeteo() {
-        List<Departement> depts = departementRepository.findAll().stream()
+    public record ForecastResult(String departementNum, LocalDate date, Daily_meteo meteo) {}
+
+    public List<ForecastResult> fetchForecasts(List<Departement> depts) {
+        List<ForecastResult> allResults = new ArrayList<>();
+        List<Departement> validDepts = depts.stream()
                 .filter(d -> d.getLat() != null && d.getLongitude() != null)
                 .toList();
 
-        for (int i = 0; i < depts.size(); i += 50) {
-            List<Departement> batch = depts.subList(i, Math.min(i + 50, depts.size()));
+        for (int i = 0; i < validDepts.size(); i += 50) {
+            List<Departement> batch = validDepts.subList(i, Math.min(i + 50, validDepts.size()));
             String lats = batch.stream().map(d -> d.getLat().toString().replace(",", "."))
                     .collect(Collectors.joining(","));
             String longs = batch.stream().map(d -> d.getLongitude().toString().replace(",", "."))
@@ -68,68 +58,59 @@ public class OpenMeteoService {
             if (response != null) {
                 if (response.isArray()) {
                     for (int j = 0; j < response.size(); j++) {
-                        saveDailyMeteoForIndex(batch.get(j), response.get(j), 0, LocalDate.now());
-                        saveDailyMeteoForIndex(batch.get(j), response.get(j), 1, LocalDate.now().plusDays(1));
+                        allResults.addAll(parseDailyMeteoForIndex(batch.get(j), response.get(j), 0, LocalDate.now()));
+                        allResults.addAll(parseDailyMeteoForIndex(batch.get(j), response.get(j), 1, LocalDate.now().plusDays(1)));
                     }
                 } else {
-                    saveDailyMeteoForIndex(batch.get(0), response, 0, LocalDate.now());
-                    saveDailyMeteoForIndex(batch.get(0), response, 1, LocalDate.now().plusDays(1));
+                    allResults.addAll(parseDailyMeteoForIndex(batch.get(0), response, 0, LocalDate.now()));
+                    allResults.addAll(parseDailyMeteoForIndex(batch.get(0), response, 1, LocalDate.now().plusDays(1)));
                 }
             }
         }
+        return allResults;
     }
 
-    private void saveDailyMeteoForIndex(Departement dept, JsonNode fullNode, int index, LocalDate date) {
+    private List<ForecastResult> parseDailyMeteoForIndex(Departement dept, JsonNode fullNode, int index, LocalDate date) {
+        List<ForecastResult> results = new ArrayList<>();
         List<String> targetCodes = "99".equals(dept.getNum()) ? List.of("99A", "99B") : List.of(dept.getNum());
-        for (String code : targetCodes) {
-            departementRepository.findById(code).ifPresent(targetDept -> {
-                bulletinRepository.findByDepartementAndDate(targetDept, date).ifPresent(bulletin -> {
-                    dailyMeteoRepository.deleteByBulletin(bulletin);
+        
+        JsonNode dailyData = fullNode.path("daily");
+        if (!dailyData.isMissingNode() && dailyData.path("time").isArray() && dailyData.path("time").size() > index) {
+            for (String code : targetCodes) {
+                Daily_meteo dm = new Daily_meteo();
+                dm.setDate(date);
+                dm.setWeatherCode(getSafeInt(dailyData, "weather_code", index));
+                dm.setTempMax(getSafeDouble(dailyData, "temperature_2m_max", index));
+                dm.setTempMin(getSafeDouble(dailyData, "temperature_2m_min", index));
+                dm.setApparentTempMax(getSafeDouble(dailyData, "apparent_temperature_max", index));
+                dm.setApparentTempMin(getSafeDouble(dailyData, "apparent_temperature_min", index));
 
-                    JsonNode dailyData = fullNode.path("daily");
+                String sunriseStr = getSafeString(dailyData, "sunrise", index);
+                if (sunriseStr != null) dm.setSunrise(LocalDateTime.parse(sunriseStr));
 
-                    if (!dailyData.isMissingNode() && dailyData.path("time").isArray()
-                            && dailyData.path("time").size() > index) {
-                        Daily_meteo dm = new Daily_meteo();
-                        dm.setBulletin(bulletin);
-                        dm.setDate(date);
+                String sunsetStr = getSafeString(dailyData, "sunset", index);
+                if (sunsetStr != null) dm.setSunset(LocalDateTime.parse(sunsetStr));
 
-                        dm.setWeatherCode(getSafeInt(dailyData, "weather_code", index));
-                        dm.setTempMax(getSafeDouble(dailyData, "temperature_2m_max", index));
-                        dm.setTempMin(getSafeDouble(dailyData, "temperature_2m_min", index));
-                        dm.setApparentTempMax(getSafeDouble(dailyData, "apparent_temperature_max", index));
-                        dm.setApparentTempMin(getSafeDouble(dailyData, "apparent_temperature_min", index));
+                dm.setDaylightDuration(getSafeDouble(dailyData, "daylight_duration", index));
+                dm.setSunshineDuration(getSafeDouble(dailyData, "sunshine_duration", index));
+                dm.setUvIndexMax(getSafeDouble(dailyData, "uv_index_max", index));
+                dm.setUvIndexClearSkyMax(getSafeDouble(dailyData, "uv_index_clear_sky_max", index));
+                dm.setRainSum(getSafeDouble(dailyData, "rain_sum", index));
+                dm.setShowersSum(getSafeDouble(dailyData, "showers_sum", index));
+                dm.setSnowfallSum(getSafeDouble(dailyData, "snowfall_sum", index));
+                dm.setPrecipitationSum(getSafeDouble(dailyData, "precipitation_sum", index));
+                dm.setPrecipitationHours(getSafeDouble(dailyData, "precipitation_hours", index));
+                dm.setPrecipitationProbabilityMax(getSafeInt(dailyData, "precipitation_probability_max", index));
+                dm.setWindSpeedMax(getSafeDouble(dailyData, "wind_speed_10m_max", index));
+                dm.setWindGustsMax(getSafeDouble(dailyData, "wind_gusts_10m_max", index));
+                dm.setWindDirectionDominant(getSafeInt(dailyData, "wind_direction_10m_dominant", index));
+                dm.setShortwaveRadiationSum(getSafeDouble(dailyData, "shortwave_radiation_sum", index));
+                dm.setEvapotranspiration(getSafeDouble(dailyData, "et0_fao_evapotranspiration", index));
 
-                        String sunriseStr = getSafeString(dailyData, "sunrise", index);
-                        if (sunriseStr != null)
-                            dm.setSunrise(LocalDateTime.parse(sunriseStr));
-
-                        String sunsetStr = getSafeString(dailyData, "sunset", index);
-                        if (sunsetStr != null)
-                            dm.setSunset(LocalDateTime.parse(sunsetStr));
-
-                        dm.setDaylightDuration(getSafeDouble(dailyData, "daylight_duration", index));
-                        dm.setSunshineDuration(getSafeDouble(dailyData, "sunshine_duration", index));
-                        dm.setUvIndexMax(getSafeDouble(dailyData, "uv_index_max", index));
-                        dm.setUvIndexClearSkyMax(getSafeDouble(dailyData, "uv_index_clear_sky_max", index));
-                        dm.setRainSum(getSafeDouble(dailyData, "rain_sum", index));
-                        dm.setShowersSum(getSafeDouble(dailyData, "showers_sum", index));
-                        dm.setSnowfallSum(getSafeDouble(dailyData, "snowfall_sum", index));
-                        dm.setPrecipitationSum(getSafeDouble(dailyData, "precipitation_sum", index));
-                        dm.setPrecipitationHours(getSafeDouble(dailyData, "precipitation_hours", index));
-                        dm.setPrecipitationProbabilityMax(
-                                getSafeInt(dailyData, "precipitation_probability_max", index));
-                        dm.setWindSpeedMax(getSafeDouble(dailyData, "wind_speed_10m_max", index));
-                        dm.setWindGustsMax(getSafeDouble(dailyData, "wind_gusts_10m_max", index));
-                        dm.setWindDirectionDominant(getSafeInt(dailyData, "wind_direction_10m_dominant", index));
-                        dm.setShortwaveRadiationSum(getSafeDouble(dailyData, "shortwave_radiation_sum", index));
-                        dm.setEvapotranspiration(getSafeDouble(dailyData, "et0_fao_evapotranspiration", index));
-
-                        dailyMeteoRepository.save(dm);
-                    }
-                });
-            });
+                results.add(new ForecastResult(code, date, dm));
+            }
         }
+        return results;
     }
 
     private Double getSafeDouble(JsonNode parent, String fieldName, int index) {

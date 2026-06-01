@@ -1,17 +1,10 @@
 package AlerteServer.service;
 
-import AlerteServer.entity.Alerte;
-import AlerteServer.entity.Bulletin;
-import AlerteServer.entity.Departement;
-import AlerteServer.repository.AlerteRepository;
-import AlerteServer.repository.BulletinRepository;
-import AlerteServer.repository.DepartementRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -28,20 +21,14 @@ public class MeteoFranceService {
 
     private static final Logger log = LoggerFactory.getLogger(MeteoFranceService.class);
 
-    private final BulletinRepository bulletinRepository;
-    private final AlerteRepository alerteRepository;
-    private final DepartementRepository departementRepository;
     private final WebClient webClient;
 
-    public MeteoFranceService(BulletinRepository bulletinRepository,
-                              AlerteRepository alerteRepository,
-                              DepartementRepository departementRepository,
-                              WebClient.Builder webClientBuilder) {
-        this.bulletinRepository = bulletinRepository;
-        this.alerteRepository = alerteRepository;
-        this.departementRepository = departementRepository;
+    public MeteoFranceService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
     }
+
+    public record Phenomenon(int typeId, int levelId) {}
+    public record VigilanceResult(String departementNum, LocalDate targetDate, List<Phenomenon> phenomenons) {}
 
     public JsonNode fetchVigilanceData() {
         String username = "bjEoVZLQFh0NXoftNKNKdSK4Zcoa";
@@ -78,13 +65,12 @@ public class MeteoFranceService {
                 .block();
     }
 
-    @Transactional
-    public void processAndSaveVigilanceData(JsonNode json) {
+    public List<VigilanceResult> parseVigilanceData(JsonNode json) {
+        List<VigilanceResult> results = new ArrayList<>();
         JsonNode periods = json.path("product").path("periods");
-        Set<Long> clearedBulletins = new HashSet<>();
 
         if (periods.isMissingNode() || !periods.isArray())
-            return;
+            return results;
 
         for (JsonNode period : periods) {
             String echeance = period.path("echeance").asText();
@@ -118,37 +104,20 @@ public class MeteoFranceService {
                 }
 
                 for (String finalDeptNum : targetNums) {
-                    Departement dept = departementRepository.findById(finalDeptNum).orElseGet(() -> {
-                        Departement d = new Departement();
-                        d.setNum(finalDeptNum);
-                        return departementRepository.save(d);
-                    });
-
-                    Bulletin bulletin = bulletinRepository.findByDepartementAndDate(dept, targetDate)
-                            .orElseGet(() -> {
-                                Bulletin b = new Bulletin();
-                                b.setDepartement(dept);
-                                b.setDate(targetDate);
-                                return bulletinRepository.save(b);
-                            });
-
-                    if (!clearedBulletins.contains(bulletin.getId())) {
-                        alerteRepository.deleteByBulletin(bulletin);
-                        clearedBulletins.add(bulletin.getId());
-                    }
-
+                    List<Phenomenon> phenoms = new ArrayList<>();
                     JsonNode phenomenons = domainNode.path("phenomenon_items");
                     if (phenomenons.isArray()) {
                         for (JsonNode phenomNode : phenomenons) {
-                            Alerte alerte = new Alerte();
-                            alerte.setType(phenomNode.path("phenomenon_id").asInt());
-                            alerte.setLevel(phenomNode.path("phenomenon_max_color_id").asInt());
-                            alerte.setBulletin(bulletin);
-                            alerteRepository.save(alerte);
+                            phenoms.add(new Phenomenon(
+                                phenomNode.path("phenomenon_id").asInt(),
+                                phenomNode.path("phenomenon_max_color_id").asInt()
+                            ));
                         }
                     }
+                    results.add(new VigilanceResult(finalDeptNum, targetDate, phenoms));
                 }
             }
         }
+        return results;
     }
 }

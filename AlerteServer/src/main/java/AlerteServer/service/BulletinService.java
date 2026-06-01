@@ -11,7 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.springframework.transaction.annotation.Transactional;
+import AlerteServer.entity.Alerte;
+import AlerteServer.entity.Departement;
+import AlerteServer.repository.DepartementRepository;
+import AlerteServer.service.MeteoFranceService.VigilanceResult;
+import AlerteServer.service.MeteoFranceService.Phenomenon;
 
 @Service
 public class BulletinService {
@@ -26,6 +34,9 @@ public class BulletinService {
 
     @Autowired
     private Daily_meteoRepository dailyMeteoRepository;
+
+    @Autowired
+    private DepartementRepository departementRepository;
 
     public List<Bulletin> getAll() {
         return bulletinRepository.findAllWithDetails();
@@ -58,6 +69,39 @@ public class BulletinService {
             log.info("Purge effectuée avec succès.");
         } catch (Exception e) {
             log.error("Erreur lors de la purge des données", e);
+        }
+    }
+
+    @Transactional
+    public void saveVigilances(List<VigilanceResult> vigilances) {
+        Set<Long> clearedBulletins = new HashSet<>();
+        for (VigilanceResult vr : vigilances) {
+            Departement dept = departementRepository.findById(vr.departementNum()).orElseGet(() -> {
+                Departement d = new Departement();
+                d.setNum(vr.departementNum());
+                return departementRepository.save(d);
+            });
+
+            Bulletin bulletin = bulletinRepository.findByDepartementAndDate(dept, vr.targetDate())
+                    .orElseGet(() -> {
+                        Bulletin b = new Bulletin();
+                        b.setDepartement(dept);
+                        b.setDate(vr.targetDate());
+                        return bulletinRepository.save(b);
+                    });
+
+            if (!clearedBulletins.contains(bulletin.getId())) {
+                alerteRepository.deleteByBulletin(bulletin);
+                clearedBulletins.add(bulletin.getId());
+            }
+
+            for (Phenomenon p : vr.phenomenons()) {
+                Alerte alerte = new Alerte();
+                alerte.setType(p.typeId());
+                alerte.setLevel(p.levelId());
+                alerte.setBulletin(bulletin);
+                alerteRepository.save(alerte);
+            }
         }
     }
 }
