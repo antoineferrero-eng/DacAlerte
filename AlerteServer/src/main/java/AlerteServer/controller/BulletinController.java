@@ -57,8 +57,7 @@ public class BulletinController {
             depDTO = new DepartementDTO(
                     bulletin.getDepartement().getNum(),
                     bulletin.getDepartement().getLat(),
-                    bulletin.getDepartement().getLongitude()
-            );
+                    bulletin.getDepartement().getLongitude());
         }
 
         Set<AlerteDTO> alertesDTO = bulletin.getAlertes().stream()
@@ -74,8 +73,7 @@ public class BulletinController {
                 bulletin.getDate(),
                 depDTO,
                 alertesDTO,
-                meteosDTO
-        );
+                meteosDTO);
     }
 
     private DailyMeteoDTO mapToMeteoDTO(Daily_meteo m) {
@@ -103,7 +101,6 @@ public class BulletinController {
                 m.getWindGustsMax(),
                 m.getWindDirectionDominant(),
                 m.getShortwaveRadiationSum(),
-                m.getEvapotranspiration()
-        );
+                m.getEvapotranspiration());
     }
 }

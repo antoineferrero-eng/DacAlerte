@@ -1,6 +1,6 @@
 package AlerteServer.service;
 
-import AlerteServer.config.AppConfig;
+
 import AlerteServer.dto.ContactAlerteDTO;
 import AlerteServer.entity.Departement;
 import AlerteServer.repository.DepartementRepository;
@@ -34,16 +34,16 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final RessourceRepository ressourceRepository;
     private final DepartementRepository departementRepository;
-    private final AppConfig appConfig;
+    private final ConfigService configService;
 
     public EmailService(JavaMailSender mailSender,
             RessourceRepository ressourceRepository,
             DepartementRepository departementRepository,
-            AppConfig appConfig) {
+            ConfigService configService) {
         this.mailSender = mailSender;
         this.ressourceRepository = ressourceRepository;
         this.departementRepository = departementRepository;
-        this.appConfig = appConfig;
+        this.configService = configService;
     }
 
     /**
@@ -96,8 +96,8 @@ public class EmailService {
             }
         }
 
-        List<String> activeLevels = appConfig.getActiveLevels();
-        List<String> activeTypes = appConfig.getActiveTypes();
+        List<String> activeLevels = configService.getActiveLevels();
+        List<String> activeTypes = configService.getActiveTypes();
 
         for (Map.Entry<String, List<ContactAlerteDTO>> entry : alertsByEmail.entrySet()) {
             boolean hasAlert = entry.getValue().stream()
@@ -121,8 +121,8 @@ public class EmailService {
      * @param alerts la liste de toutes ses alertes météo actives
      */
     public void sendManualAlertEmail(String dkCode, String to, List<ContactAlerteDTO> alerts) {
-        List<String> activeLevels = appConfig.getActiveLevels();
-        List<String> activeTypes = appConfig.getActiveTypes();
+        List<String> activeLevels = configService.getActiveLevels();
+        List<String> activeTypes = configService.getActiveTypes();
 
         StringBuilder sb = new StringBuilder();
         sb.append(
@@ -211,8 +211,8 @@ public class EmailService {
         sb.append(
                 "<h3 style=\"color: #2c3e50; margin-top: 25px; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px;\">Récapitulatif des alertes actives :</h3>");
 
-        List<String> activeLevels = appConfig.getActiveLevels();
-        List<String> activeTypes = appConfig.getActiveTypes();
+        List<String> activeLevels = configService.getActiveLevels();
+        List<String> activeTypes = configService.getActiveTypes();
 
         for (ContactAlerteDTO alert : alerts) {
             String levelValue = String.valueOf(alert.niveau());

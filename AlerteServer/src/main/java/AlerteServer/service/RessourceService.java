@@ -1,6 +1,5 @@
 package AlerteServer.service;
 
-import AlerteServer.config.AppConfig;
 import AlerteServer.dto.ContactAlerteDTO;
 import AlerteServer.dto.RessourceManageDTO;
 import AlerteServer.entity.Ressource;
@@ -24,9 +23,6 @@ public class RessourceService {
 
     @Autowired
     private EmailService emailService;
-
-    @Autowired
-    private AppConfig appConfig;
 
     public List<Ressource> getAll() {
         return ressourceRepository.findAll();

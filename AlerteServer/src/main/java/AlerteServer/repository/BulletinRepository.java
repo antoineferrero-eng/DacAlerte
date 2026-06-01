@@ -15,25 +15,26 @@ import java.util.Optional;
 public interface BulletinRepository extends JpaRepository<Bulletin, Integer> {
 
     @Query("SELECT b FROM Bulletin b WHERE b.departement = :departement AND b.date = :date")
-    Optional<Bulletin> findByDepartementAndDate(@Param("departement") Departement departement, @Param("date") LocalDate date);
+    Optional<Bulletin> findByDepartementAndDate(@Param("departement") Departement departement,
+            @Param("date") LocalDate date);
 
-    @EntityGraph(attributePaths = {"departement", "alertes", "dailyMeteos"})
+    @EntityGraph(attributePaths = { "departement", "alertes", "dailyMeteos" })
     @Query("SELECT b FROM Bulletin b")
     List<Bulletin> findAllWithDetails();
 
-    @EntityGraph(attributePaths = {"departement", "alertes", "dailyMeteos"})
+    @EntityGraph(attributePaths = { "departement", "alertes", "dailyMeteos" })
     @Query("SELECT b FROM Bulletin b WHERE b.id = :id")
     Optional<Bulletin> findByIdWithDetails(@Param("id") Long id);
 
-    @EntityGraph(attributePaths = {"departement", "alertes", "dailyMeteos"})
+    @EntityGraph(attributePaths = { "departement", "alertes", "dailyMeteos" })
     @Query("SELECT b FROM Bulletin b WHERE b.departement.num = :dep")
     List<Bulletin> findByDepWithDetails(@Param("dep") String dep);
 
-    @EntityGraph(attributePaths = {"departement", "alertes", "dailyMeteos"})
+    @EntityGraph(attributePaths = { "departement", "alertes", "dailyMeteos" })
     @Query("SELECT b FROM Bulletin b WHERE b.date = :date")
     List<Bulletin> findByDateWithDetails(@Param("date") LocalDate date);
 
-    @EntityGraph(attributePaths = {"departement", "alertes", "dailyMeteos"})
+    @EntityGraph(attributePaths = { "departement", "alertes", "dailyMeteos" })
     @Query("SELECT b FROM Bulletin b WHERE b.departement.num = :dep AND b.date = :date")
     List<Bulletin> findByDepAndDateWithDetails(@Param("dep") String dep, @Param("date") LocalDate date);
 
